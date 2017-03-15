@@ -11,10 +11,10 @@ import web from './web.js';
 const
   debug = debugLog('craigslist'),
   DEFAULT_BASE_HOST = 'craigslist.org',
-  DEFAULT_CATEGORY = 'sss',
+  DEFAULT_CATEGORY = 'apa',
   DEFAULT_CATEGORY_DETAILS_INDEX = 1,
   DEFAULT_PATH = '/search/',
-  DEFAULT_QUERYSTRING = '?sort=rel',
+  DEFAULT_QUERYSTRING = '?sort=date&bundleDuplicates=1',
   DEFAULT_REQUEST_OPTIONS = {
     hostname : '',
     path : '',
@@ -22,13 +22,35 @@ const
   },
   QUERY_KEYS = [
     'category',
+    'bedrooms',
+    'bathrooms',
+    'housingTypes',
+    'laundry',
+    'minSqft',
+    'maxSqft',
+    'minPrice',
+    'maxPrice',
+    'postal',
+    'neighborhoods',
+    'distance',
     'maxAsk',
     'minAsk',
     'query'
   ],
-  QUERY_PARAM_MAX = '&maxAsk=',
-  QUERY_PARAM_MIN = '&minAsk=',
+
+  QUERY_PARAM_MAX_PRICE = '&max_price=',
+  QUERY_PARAM_MIN_PRICE = '&min_price=',
   QUERY_PARAM_QUERY = '&query=',
+  QUERY_PARAM_BEDS = '&bedrooms=',
+  QUERY_PARAM_BATHS = '&bathrooms=',
+  QUERY_PARAM_MIN_SQFT = '&minSqft=',
+  QUERY_PARAM_MAX_SQFT = '&maxSqft=',
+  QUERY_PARAM_NEIGHBORHOODS = '&nh=',
+  QUERY_PARAM_LAUNDRY = '&laundry=',
+  QUERY_PARAM_SEARCH_DISTANCE = '&search_distance=',
+  QUERY_PARAM_POSTAL = '&postal=',
+  QUERY_PARAM_HOUSING_TYPES = '&housing_type=',
+
   RE_HTML = /\.htm(l)?/i,
   RE_QUALIFIED_URL = /^\/\/[a-z0-9\-]*\.craigslist\.[a-z]*/i,
   RE_TAGS_MAP = /map/i;
@@ -280,21 +302,89 @@ function _getRequestOptions (options, query) {
       encodeURIComponent(query)].join('');
   }
 
-  // add min asking price (if specified)
-  if (!core.Validation.isEmpty(options.minAsk)) {
+  if (!core.Validation.isEmpty(options.bedrooms)) {
     requestOptions.path = [
       requestOptions.path,
-      QUERY_PARAM_MIN,
-      options.minAsk].join('');
+      QUERY_PARAM_BEDS,
+      options.bedrooms].join('');
   }
 
-  // add max asking price (if specified)
-  if (!core.Validation.isEmpty(options.maxAsk)) {
+  if (!core.Validation.isEmpty(options.bathrooms)) {
     requestOptions.path = [
       requestOptions.path,
-      QUERY_PARAM_MAX,
-      options.maxAsk].join('');
+      QUERY_PARAM_BATHS,
+      options.bathrooms].join('');
   }
+
+  if (!core.Validation.isEmpty(options.neighborhoods)) {
+    options.neighborhoods.forEach(function(nhIdx) {
+      requestOptions.path = [
+        requestOptions.path,
+        QUERY_PARAM_NEIGHBORHOODS,
+        nhIdx].join('');
+    })
+  }
+
+  if (!core.Validation.isEmpty(options.laundry)) {
+    options.laundry.forEach(function(nhIdx) {
+      requestOptions.path = [
+        requestOptions.path,
+        QUERY_PARAM_LAUNDRY,
+        nhIdx].join('');
+    })
+  }
+
+  if (!core.Validation.isEmpty(options.housingTypes)) {
+    options.housingTypes.forEach(function(nhIdx) {
+      requestOptions.path = [
+        requestOptions.path,
+        QUERY_PARAM_HOUSING_TYPES,
+        nhIdx].join('');
+    })
+  }
+
+  if (!core.Validation.isEmpty(options.postal)) {
+    requestOptions.path = [
+      requestOptions.path,
+      QUERY_PARAM_POSTAL,
+      options.postal].join('');
+  }
+
+  if (!core.Validation.isEmpty(options.distance)) {
+    requestOptions.path = [
+      requestOptions.path,
+      QUERY_PARAM_SEARCH_DISTANCE,
+      options.distance].join('');
+  }
+
+  if (!core.Validation.isEmpty(options.minSqft)) {
+    requestOptions.path = [
+      requestOptions.path,
+      QUERY_PARAM_MIN_SQFT,
+      options.minSqft].join('');
+  }
+
+  if (!core.Validation.isEmpty(options.maxSqft)) {
+    requestOptions.path = [
+      requestOptions.path,
+      QUERY_PARAM_MAX_SQFT,
+      options.maxSqft].join('');
+  }
+
+  if (!core.Validation.isEmpty(options.maxPrice)) {
+    requestOptions.path = [
+      requestOptions.path,
+      QUERY_PARAM_MAX_PRICE,
+      options.maxPrice].join('');
+  }
+
+  if (!core.Validation.isEmpty(options.minPrice)) {
+    requestOptions.path = [
+      requestOptions.path,
+      QUERY_PARAM_MIN_PRICE,
+      options.minPrice].join('');
+  }
+
 
   debug('setting request options: %o', requestOptions);
 
