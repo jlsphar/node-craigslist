@@ -50,7 +50,8 @@ const
   QUERY_PARAM_SEARCH_DISTANCE = '&search_distance=',
   QUERY_PARAM_POSTAL = '&postal=',
   QUERY_PARAM_HOUSING_TYPES = '&housing_type=',
-
+  QUERY_PARAM_POSTED_TODAY = '&postedToday=',
+  QUERY_PARAM_AVAILABILITY_MODE = '&availabilityMode=',
   RE_HTML = /\.htm(l)?/i,
   RE_QUALIFIED_URL = /^\/\/[a-z0-9\-]*\.craigslist\.[a-z]*/i,
   RE_TAGS_MAP = /map/i;
@@ -343,11 +344,27 @@ function _getRequestOptions (options, query) {
     })
   }
 
+  if (options.postedToday) {
+    if (options.postedToday) {
+      requestOptions.path = [
+        requestOptions.path,
+        QUERY_PARAM_POSTED_TODAY,
+        '1'].join('')
+    }
+  }
+
   if (!core.Validation.isEmpty(options.postal)) {
     requestOptions.path = [
       requestOptions.path,
       QUERY_PARAM_POSTAL,
       options.postal].join('');
+  }
+
+  if (options.within30Days !== undefined) {
+    requestOptions.path = [
+      requestOptions.path,
+      QUERY_PARAM_AVAILABILITY_MODE,
+      (options.within30Days ? 1 : 2)].join('')
   }
 
   if (!core.Validation.isEmpty(options.distance)) {
@@ -386,8 +403,7 @@ function _getRequestOptions (options, query) {
   }
 
 
-  debug('setting request options: %o', requestOptions);
-
+  console.log('setting request options: %o', requestOptions);
   return requestOptions;
 }
 

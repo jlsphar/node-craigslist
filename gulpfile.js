@@ -11,8 +11,11 @@ var
   mocha = require('gulp-mocha'),
   sourcemaps = require('gulp-sourcemaps');
 
+gulp.task('clean', gulp.series(function (callback) {
+  return del(['dist', 'reports'], callback);
+}));
 
-gulp.task('build', ['clean'], () => {
+gulp.task('build', gulp.series(['clean'], () => {
     return gulp
       .src('src/**/*.js')
       .pipe(sourcemaps.init())
@@ -21,31 +24,11 @@ gulp.task('build', ['clean'], () => {
       }))
       .pipe(sourcemaps.write('.'))
       .pipe(gulp.dest('dist'));
-  });
+  }));
 
 
-gulp.task('clean', function (callback) {
-  return del(['dist', 'reports'], callback);
-});
 
-
-gulp.task('coveralls', ['test-coverage'], function () {
-  return gulp
-    .src('reports/lcov.info')
-    .pipe(coveralls());
-});
-
-
-gulp.task('lint', function () {
-  return gulp
-    .src(['**/*.js', '!dist/**', '!node_modules/**', '!reports/**'])
-    .pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError());
-});
-
-
-gulp.task('test-coverage', ['build'], function () {
+gulp.task('test-coverage', gulp.series(['build'], function () {
   return gulp
     .src(['./dist/**/*.js'])
     .pipe(istanbul())
@@ -64,10 +47,25 @@ gulp.task('test-coverage', ['build'], function () {
             }))
         .pipe(istanbul.writeReports('./reports'));
     });
-});
+}));
+gulp.task('coveralls', gulp.series(['test-coverage'], function () {
+  return gulp
+    .src('reports/lcov.info')
+    .pipe(coveralls());
+}));
 
 
-gulp.task('test-integration', ['build'], function () {
+gulp.task('lint', gulp.series(function () {
+  return gulp
+    .src(['**/*.js', '!dist/**', '!node_modules/**', '!reports/**'])
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
+}));
+
+
+
+gulp.task('test-integration', gulp.series(['build'], function () {
   return gulp
     .src(['./test/integration/**/*.js'], { read : false })
     .pipe(mocha({
@@ -75,10 +73,10 @@ gulp.task('test-integration', ['build'], function () {
       reporter : 'spec',
       ui : 'bdd'
     }));
-});
+}));
 
 
-gulp.task('test-unit', ['build'], function () {
+gulp.task('test-unit', gulp.series(['build'], function () {
   return gulp
     .src(['./test/lib/**/*.js'], { read : false })
     .pipe(mocha({
@@ -86,4 +84,4 @@ gulp.task('test-unit', ['build'], function () {
       reporter : 'spec',
       ui : 'bdd'
     }));
-});
+}));
